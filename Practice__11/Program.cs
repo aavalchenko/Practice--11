@@ -1,18 +1,67 @@
 ﻿using System;
-using System.Threading;
 using InputOutputLib;
 
 namespace Practice__11
 {
-    class Program
+    internal sealed class Program
     {
+        private static string[] menuStrings =
+        {
+            "Кодирование строки из 121 символа посредством записи в массив и чтением по спирали из центрального элемента:",
+            "Закодировать строку", "Декодировать строку"
+        };
+        private static Menu mainMenu = new Menu(menuStrings);
+        private static bool status = true;
         static void Main(string[] args)
         {
-            Console.WriteLine("Закодированная строка: " + Encode(RemakeString(GetString())));
-            Console.WriteLine("Декодировка закодированной строки: " + RemakeArray(Decode(GetString())));
-            Console.ReadKey();
-        }
+            while (status)
+            {
+                switch (mainMenu.Show())
+                {
+                    case ConsoleKey.NumPad1:
+                    case ConsoleKey.D1:
+                        Console.Clear();
+                        try
+                        {
+                            Console.WriteLine("\nЗакодированная строка: " + Encode(RemakeString(GetString())) + "\n");
+                        }
+                        catch (ArgumentException error)
+                        {
+                            Console.WriteLine("\n" + error.Message + "\n");
+                        }
+                        Get.Wait();
+                        break;
 
+                    case ConsoleKey.NumPad2:
+                    case ConsoleKey.D2:
+                        Console.Clear();
+                        try
+                        {
+                            Console.WriteLine("\nДекодировка закодированной строки: " + RemakeArray(Decode(GetString())) + "\n");
+                        }
+                        catch (ArgumentException error)
+                        {
+                            Console.WriteLine("\n" + error.Message + "\n");
+                        }
+                        Get.Wait();
+                        break;
+
+                    case ConsoleKey.Escape:
+                        status = false;
+                        break;
+
+                    default:
+                        Console.Clear();
+                        Console.WriteLine("Выбран несуществующий пункт меню.\n");
+                        Get.Wait();
+                        break;
+                }
+            }
+        }
+        /// <summary>
+        /// Получает строку от пользователя длиной 121 символ.
+        /// </summary>
+        /// <returns></returns>
         private static string GetString()
         {
             string input = Get.String("Введите строку из 121 символа: ");
@@ -20,6 +69,11 @@ namespace Practice__11
                 throw new ArgumentException("Длина строки не 121 символ.");
             return input;
         }
+        /// <summary>
+        /// Преоразует строку в массив символов построчно.
+        /// </summary>
+        /// <param name="input">Входная строка.</param>
+        /// <returns></returns>
         private static char[,] RemakeString(string input)
         {
             char[,] array = new char[11,11];
@@ -35,6 +89,11 @@ namespace Practice__11
 
             return array;
         }
+        /// <summary>
+        /// Преобразует массив в строку построчно.
+        /// </summary>
+        /// <param name="array">Входной массив.</param>
+        /// <returns></returns>
         private static string RemakeArray(char[,] array)
         {
             string output = "";
@@ -48,6 +107,11 @@ namespace Practice__11
 
             return output;
         }
+        /// <summary>
+        /// Кодирует строку, заданную массивом.
+        /// </summary>
+        /// <param name="array">Входной массив.</param>
+        /// <returns></returns>
         private static string Encode(char[,] array)
         {
             string output = "";
@@ -62,6 +126,11 @@ namespace Practice__11
 
             return output;
         }
+        /// <summary>
+        /// Декодирует строку.
+        /// </summary>
+        /// <param name="input">Входная строка.</param>
+        /// <returns></returns>
         private static char[,] Decode(string input)
         {
             char[,] array =  new char[11,11];
@@ -74,6 +143,15 @@ namespace Practice__11
 
             return array;
         }
+        #region Методы чтения из массива по спирали
+        /// <summary>
+        /// Считывает круг из массива по часовой стрелке.
+        /// </summary>
+        /// <param name="array"></param>
+        /// <param name="k"></param>
+        /// <param name="output"></param>
+        /// <param name="i"></param>
+        /// <param name="j"></param>
         private static void ReadCircle(char[,] array, ref Int16 k, ref string output, ref Int16 i, ref Int16 j)
         {
             ReadToRight(array, k, ref output, ref i, ref j);
@@ -120,11 +198,30 @@ namespace Practice__11
                 k--;
             }
         }
+        /// <summary>
+        /// Выходит из центра на окружность.
+        /// </summary>
+        /// <param name="array"></param>
+        /// <param name="k"></param>
+        /// <param name="output"></param>
+        /// <param name="i"></param>
+        /// <param name="j"></param>
         private static void ReadToCircle(char[,] array, ref Int16 k, ref string output, ref Int16 i, ref Int16 j)
         {
             output += array[i, j];
             ReadToUp(array, k, ref output, ref i, ref j);
         }
+        #endregion
+        #region Методы записи из массива по спирали
+        /// <summary>
+        /// Записывает круг из массива по часовой стрелке.
+        /// </summary>
+        /// <param name="array"></param>
+        /// <param name="k"></param>
+        /// <param name="output"></param>
+        /// <param name="i"></param>
+        /// <param name="j"></param>
+        /// <param name="count"></param>
         private static void WriteCircle(ref char[,] array, ref Int16 k, string output, ref Int16 i, ref Int16 j, ref Int16 count)
         {
             WriteToRight(ref array, k, output, ref i, ref j, ref count);
@@ -175,11 +272,21 @@ namespace Practice__11
                 count++;
             }
         }
+        /// <summary>
+        /// Выходит из центра на окружность.
+        /// </summary>
+        /// <param name="array"></param>
+        /// <param name="k"></param>
+        /// <param name="output"></param>
+        /// <param name="i"></param>
+        /// <param name="j"></param>
+        /// <param name="count"></param>
         private static void WriteToCircle(ref char[,] array, ref Int16 k, string output, ref Int16 i, ref Int16 j, ref Int16 count)
         {
             array[i, j] = output[count];
             count++;
             WriteToUp(ref array, k, output, ref i, ref j, ref count);
         }
+        #endregion
     }
 }
